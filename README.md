@@ -1,5 +1,5 @@
 # dataset-dinov2-container
-Dinov2 ImageNet-1k requires the dataset to be in a very specific format, personally i run my machine learning clusters on kubernetes and within this repository are container images i have created to download and create the dataset in the format necessary for compatibility with the dinov2 code. \
+Dinov2 ImageNet-1k requires the dataset to be in a very specific format, personally i run my machine learning clusters on kubernetes and within this repository are container images i have created to download and create the dataset in the format necessary for compatibility with the dinov2 code. 
 ### Contents
 -clusterDatasetYAML/ : yaml code for dataset resource on cluster \
 -datasetCreationContainer/ : files used for creation of datasetCreation container image \
@@ -21,4 +21,4 @@ kubectl apply -f datasetFinalYAML
 ### NOTES
 - the datasetCreation container performs the download, decompression and dearchiving in a streaming fashion, this implementation reduces greatly filesystem operation which i found very important when needing to access AWS EFS through a mount point (otherwise the bandwith iops would saturate). This is obviously a niche use case, but if you find yourself in a similar situation you can check out [https://github.com/ccharest93/dataset-dinov2].
 - this version of the YAML files are for a local minikube implementation, some modification necessary to use them on AWS EKS 
-- datasetFinal container is quite bulky because it not only requires pytorch due to facebook's implementation of their dataset formating code
+- datasetFinal container is quite bulky because it requires the pytorch library due to facebook's implementation of their dataset formating python script
