@@ -1,0 +1,34 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: dataset-train
+spec:
+  backoffLimit: 4
+  completions: 5
+  parallelism: 5
+  completionMode: Indexed
+  template:
+    spec:
+      restartPolicy: Never
+      volumes:
+        - name: efs-pv
+          persistentVolumeClaim:
+            claimName: efs-pvc
+      containers:
+        - name: dataset-train
+          image: maatra/dinov2-dataset-creation:latest
+          command: [
+            "sh", "-c",
+            "dataset-dinov2 https://huggingface.co/datasets/imagenet-1k/resolve/main/data/train_images_${JOB_COMPLETION_INDEX}.tar.gz 1 $HF_TOKEN /efs-shared",
+          ]
+          resources:
+            requests:
+              cpu: 250m
+            limits:
+              cpu: 500m
+          envFrom:
+            - configMapRef:
+                name: hf-token
+          volumeMounts:
+            - name: efs-pv
+              mountPath: /efs-shared

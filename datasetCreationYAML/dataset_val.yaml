@@ -1,0 +1,31 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: dataset-val
+spec:
+  backoffLimit: 4
+  template:
+    spec:
+      restartPolicy: Never
+      volumes:
+        - name: efs-pv
+          persistentVolumeClaim:
+            claimName: efs-pvc
+      containers:
+        - name: dataset-val
+          image: maatra/dinov2-dataset-creation:latest
+          command: [
+            "sh", "-c",
+            "dataset-dinov2 https://huggingface.co/datasets/imagenet-1k/resolve/main/data/test_images.tar.gz 2 $HF_TOKEN /efs-shared"
+          ]
+          resources:
+            requests:
+              cpu: 250m
+            limits:
+              cpu: 500m
+          envFrom:
+            - configMapRef:
+                name: hf-token
+          volumeMounts:
+            - name: efs-pv
+              mountPath: /efs-shared

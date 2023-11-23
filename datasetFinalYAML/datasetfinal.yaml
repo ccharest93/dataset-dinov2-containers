@@ -1,0 +1,30 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: dataset-final
+spec:
+  backoffLimit: 4
+  template:
+    spec:
+      restartPolicy: Never
+      volumes:
+        - name: efs-pv
+          persistentVolumeClaim:
+            claimName: efs-pvc
+      containers:
+        - name: dataset-final
+          image: maatra/dinov2-dataset-final
+          command: [
+            "sh", "-c",
+            "cp ./labels.txt /efs-shared/ \
+            && cd ./dinov2 \
+            && python datasetfinal.py"
+          ]
+          resources:
+            requests:
+              cpu: 500m
+            limits:
+              cpu: 1
+          volumeMounts:
+            - name: efs-pv
+              mountPath: /efs-shared
